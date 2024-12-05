@@ -9,13 +9,19 @@ from scipy.cluster.hierarchy import linkage, fcluster
 
 #%%
 class ReligiousTextThemeAnalyzer:
-    def __init__(self):
+    def __init__(self, custom_stopwords=None):
         # Initialize NLTK components
         nltk.download('stopwords', quiet=True)
         nltk.download('punkt', quiet=True)
         nltk.download('wordnet', quiet=True)
         
+        # Get default English stopwords
         self.stop_words = set(nltk.corpus.stopwords.words('english'))
+        
+        # Add custom stopwords if provided
+        if custom_stopwords:
+            self.stop_words.update(custom_stopwords)
+        
         self.lemmatizer = nltk.stem.WordNetLemmatizer()
     
     def preprocess_text(self, text):
@@ -23,9 +29,9 @@ class ReligiousTextThemeAnalyzer:
         # Convert to lowercase and tokenize
         tokens = nltk.word_tokenize(str(text).lower())
         
-        # Lemmatize and remove stopwords
+        # Remove stopwords and non-alphabetic tokens
         cleaned_tokens = [
-            self.lemmatizer.lemmatize(token)
+            token
             for token in tokens
             if token.isalpha() and token not in self.stop_words
         ]
@@ -89,13 +95,13 @@ class ReligiousTextThemeAnalyzer:
                 if not topic_words:
                     continue
                 
-                word_weights = [weight for _, weight in topic_words[:10]]
+                word_weights = [weight for _, weight in topic_words[:20]]
                 theme_coherence = np.mean(word_weights)
                 theme_prevalence = np.sum([1 for t in topics if t == topic_id]) / len(topics)
                 
                 themes.append({
                     'theme_id': topic_id,
-                    'top_words': [word for word, _ in topic_words[:10]],
+                    'top_words': [word for word, _ in topic_words[:20]],
                     'word_weights': word_weights,
                     'coherence': theme_coherence,
                     'prevalence': theme_prevalence,
@@ -131,7 +137,7 @@ class ReligiousTextThemeAnalyzer:
         
         return results
     
-    def print_top_themes_per_document(self, analysis_results, top_n=10):
+    def print_top_themes_per_document(self, analysis_results, top_n=20):
         """Print top N themes for each text"""
         for text_name, analysis in analysis_results.items():
             print(f"\n{'='*20} Top {top_n} Themes in {text_name} {'='*20}")
@@ -387,7 +393,149 @@ class TopicSimilarityAnalyzer:
 
 #%%
 # Initialize analyzer
-analyzer = ReligiousTextThemeAnalyzer()
+# Example of adding custom stopwords
+custom_stops = ['arjuna', 'krishna', 'mazda', 'ahura mazda', 'brahma', 'dhammas', 'moroni',
+                'jacob', 'enos', 'christ', 'unas', 'osiris', 'mosiah', 'prabhaatee mehl', 'ani',
+                'text chapter', 'jared', 'brother jared', 'pharoah', 'moses', 'mallans', 'kusinr', 
+                'coriantumr', 'shiz', 'pas', 'came pas', 'lib', 'qasiagssaq', 'ven', 'nanda',
+                'ven nanda', 'tathgata', 'dadda', 'nanna', 'raag fifth', 'siree raag', 'dayv',
+                'naam dayv', 'naam', 'arit', 'dhamma', 'shabad', 'maajh', 'vajjians', 'nanda', 
+                'magadha', 'vassakra', 'jvaka', 'saarang fourth', 'shalok', 'pauree', 'pukkusa', 
+                'pv', 'avesta', 'zend', 'sraosha', 'chukchee', 'eskimo', 'iii', 'fargard', 'fargards',
+                'venddd', 'farg', 'abraham', 'lut', 'isaac', 'noah', 'armf', 'orsha', 'hermes', 'apollo', 
+                'odin', 'njrdr', 'skadi', 'xibalba', 'hunahp', 'xbalanqu', 'yawahu', 'tohil',
+                'tohil avilix', 'mahucutah', 'hacavitz', 'avilix', 'aviliz hacavitz', 'dava',
+                'thrita', 'zipacn', 'cabracn', 'hunahp xbalanqu', 'dinewan', 'goombelgubbon', 'oolah',
+                'dinewans', 'ha', 'wayambeh', 'galah', 'kgssagssuk', 'little kgssagssuk', 'little umerdlugtoq',
+                'ra', 'salih', 'arthur', 'gangleri', 'thor', 'skrmir', 'hrungnir', 'hymir',
+                'allah', 'son mary', 'mary', 'jesus', 'jesus son', 'allah lord', 'zeus', 
+                'maia', 'son maia', 'son zeus', 'mus', 'dy', 'kabeer', 'inkalimeva', 'fareed',
+                'mehl fareed', 'lord fareed', 'gir', 'metaneira', 'demeter', 'mugals', 'gauree',
+                'raag mehl', 'sahu', 'pepi', 'ka', 'bilaaval', 'dhanaasaree fifth', 'dhanaasaree',
+                'second mehl', 'lord dakhanay', 'pauree', 'hukam', 'todee fifth', 'todee',
+                'vii', 'viii', 'asura', 'varuna', 'tuyallay', 'ptah', 'horus', 'maat', 'set', 'shu',
+                'nut', 'seb', 'zarathustra', 'unkulunkulu', 'amadhlozi', 'amatongo', 'umancele',
+                'usopetu', 'upeteni', 'itongo', 'ufaku', 'uncapayi', 'udumisa', 'rangitu',
+                'kauilani', 'maui', 'pikoi', 'mainele', 'tabu', 'umyeka', 'arawak', 'ukaleq', 
+                'atdlarneq', 'lumawig', 'konehu', 'll', 'll ll', 'avvang', 'neruvkq', 'sigurdr',
+                'mamala', 'ouha', 'dkw', 'deereeree', 'wyah', 'bibbee', 'kamapuaa', 'pele',
+                'ollantay', 'tupac yupanqui', 'tupac', 'yupanqui', 'uillac uma', 'osiris ani',
+                'konehu', 'qujvrssuk', 'tupilak', 'tugto', 'pia', 'carib', 'makusis', 'arawak',
+                'tutanekai', 'te', 'kawelo', 'kauai', 'namaka', 'aiyobanni', 'hatupatu', 'siwara', 
+                'mawri', 'okoyumo', 'papik', 'serikoai', 'konehu', 'koneso', 'deegeenboyah', 'mullyan',
+                'mullyangah', 'ah ah', 'te ponga', 'ponga', 'tawhaki', 'karihi', 'tatua', 'weedah',
+                'weeoombeens', 'piggiebillah', 'bougoodoogahdah', 'bahloo', 'turi', 'arawa', 
+                'manoa', 'oahu', 'nuuanu', 'kou', 'whakatau', 'seneca', 'lawrence', 'asalq', 'makte',
+                'sedna', 'guillemot', 'takarangi', 'hakawau', 'puarata', 'maketu', 'komatari',
+                'kororomanna', 'hebu', 'koneso', 'nafudi', 'haburi', 'hlakanyana', 'sikulume',
+                'inabulele', 'mangangezulu', 'ptussorssuaq', 'altaq', 'qalagnguas', 'tallarssuaq',
+                'kupe', 'turi', 'hoturapa', 'rehua', 'rupe', 'manaia', 'ihenga', 'wakea', 'hervey',
+                'kamapuaa', 'kokoa', 'awa', 'manoa', 'kapuni', 'dhanna', 'gobind', 'lludd', 'isis',
+                'ahura', 'nephi', 'nephites', 'giddianhi', 'gidgiddoni', 'lachoneus', 'gunnarr', 'brynhildr', 
+                'gunnar hgni', 'hgni', 'gudrn', 'atli', 'gjki', 'limhi', 'ammon', 'zarahelma', 'king limhi', 
+                'jvaka', 'inuence', 'pali', 'khadoor', 'pheru', 'elphin', 'taliesin', 'heinin', 'maelgwn', 
+                'owain', 'kynon', 'kai', 'owain kynon', 'alma', 'benet', 'gurmukh', 'nanda', 'sagha', 'ambapl',
+                'licchavis', 'bairaaree', 'raam', 'har har', 'kusinr', 'tathgata', 'sal', 'armf', 'orsha', 
+                'odudwa', 'odwa', 'haungaroa', 'ueneku', 'potikiroroa', 'ku', 'heb', 'laban', 'hunahp', 'agusinnguaq',
+                'knagssuaq', 'zipacn', 'cabracn', 'hunahp xbalanqu', 'xbalanqu', 'piqui', 'chaqui', 'piqui chaqui', 
+                'coyllur', 'loki', 'idunn', 'troolie', 'luqman', 'tao', 'venddd', 'prabhaatee', 'basant', 'basant mehl', 
+                'zoroaster', 'pahlavi', 'nanak', 'yasna', 'asha', 'baresman', 'master asha', 'malaar fifth', 'malaar',
+                'maya', 'aasaa', 'intelezi', 'vara', 'goojaree', 'yima', 'uthlanga', 'utikxo', 'isalukazana', 'hrlfr', 
+                'thjazi', 'ymir', 'kumagdlak', 'james', 'ornyan', 'bo', 'adaba', 'insingizi', 'hebus', 'mrimi', 'bo', 
+                'moremi', 'ayar', 'viracocha', 'ccapac', 'manco', 'manco ccapac', 'shawano', 'gwyn', 'anarteq', 'kardltuarssuk', 
+                'helen', 'vatea', 'llevelys', 'lludd', 'coranians', 'caridwen', 'einarr', 'einarr sang', 'gylfi', 
+                'brokkr', 'owain', 'caribs', 'hreidmarr', 'freyr', 'whakaue', 'hotunui', 'wurrunnunnah', 'wirreenun', 
+                'bunnyyarl', 'noondoo', 'byamee', 'ptussorssuaq', 'hariwali', 'asalq', 'arawaks', 'caribs', 'pomeroon', 
+                'bootoolgah', 'goonur', 'comebee', 'bootoolgah goonur', 'corrobboree', 'ite', 'kurreahs', 'narran', 
+                'byamee', 'haumea', 'tamure', 'kiki', 'olopana', 'goomblegubbon', 'goomblegubbons', 'irawaru', 'paka', 
+                'kahureremoa', 'aotea', 'fakalan', 'kanawa', 'kapas', 'kgssagssuk', 'little kgssagssuk', 'umerdlugtoq', 
+                'goonur', 'goonur husband', 'isigligrssik', 'chi', 'chi chi', 'birrahlee', 'wahroogahs', 'bunbundoolooey',
+                'bangan', 'qujvrssuk', 'kapalama', 'amerdloq', 'simo', 'ebbong', 'corial', 'piai', 'gwineeboo', 'ah ah',
+                'gidgereegah', 'aaron', 'amalekites', 'amulek', 'zarathushtra', 'korihor', 'adam', 'pharoah', 'iblis',
+                'inkosazana', 'mormon', 'helaman', 'kishkumen', 'morianton', 'pahoran', 'amulek', 'zeezrom', 'judah', 
+                'nips', 'cf', 'tamar', 'gond', 'mrimi', 'bo', 'shu', 'lamoni', 'cachi', 'kaw', 'narahdarn', 'surtr',
+                'joseph', 'nanda', 'jee', 'yaya', 'brahmin', 'kaanraa', 'tilang', 'gurmukhs', 'benet', 'raamkalee',
+                'mehl', 'baynee', 'lohicca', 'rosika', 'slavatik', 'rosika barber', 'saadh', 'saadh sangat',
+                'fifth mehl', 'saarang fifth', 'saarang', 'fifth mehl', 'ephron', 'sarah', 'abimelech', 'freyja',
+                'abram', 'sodom', 'zoar', 'iwa', 'umi', 'isigligrssik', 'galagnguas', 'rachel', 'leah', 'gooloo',
+                'comebees', 'esau', 'rebekah', 'usigwili', 'amasi', 'umkqaekana', 'amazulu', 'armf', 'orsha', 'odudwa',
+                'odwa', 'zipacn', 'cabracn', 'hunahp xbalanqu', 'xbalanqu', 'hunahp', 'mehl', 'inyanga', 'hai', 'impepo',
+                'hai hai', 'oom', 'oom oom', 'wurrunnah', 'dayoorls', 'ukoko', 'ukulukulu', 'udhlamini', 'unsondo',
+                'banab', 'maraka', 'kakuhihewa', 'gir', 'bragi', 'ubulawo', 'indras', 'shivas', 'mehl', 'second mehl',
+                'uillac uma', 'uma', 'uillac', 'ravi', 'ravi daas', 'daas', 'bairaagi', 'soohee jee', 'nasu', 
+                'balwand', 'khivi', 'ffnir', 'reginn', 'hgni', 'gudrn', 'jrmunrekkr', 'erpr', 'king jrmunrekkr', 'srli',
+                'hamdir', 'kohora', 'moogaray', 'eehu', 'masilo', 'kenkebe', 'kardltuarssuk', 'raumati', 'karika',
+                'kakei', 'tinirau', 'kae', 'tatau', 'amanxusa', 'rhiannon', 'pryderi rhiannon', 'pryderi', 'cantrevs',
+                'ornyan', 'armf', 'nyanribo', 'yawarri', 'qujvrssuk', 'isokun', 'iddawc', 'beeargah', 'borah',
+                'bendigeid', 'bendigeid vran', 'vran', 'branwen', 'matholwch', 'branwen', 'kae', 'tinirau', 'tutunui',
+                'hrr', 'leto', 'genii', 'rua', 'tama', 'rata', 'kanaloa', 'aikanaka', 'kakuhihewa', 'kapoi', 'wabassi',
+                'nuknguasik', 'kgssagssuk', 'little kgssagssuk', 'dkw', 'gatan', 'boliwan', 'ideo', 'anitos',
+                'qujvrssuk', 'warribisi', 'moodai', 'paiwarri', 'kokerite', 'maikoha', 'ngatora', 'kahukura',
+                'whatuiapiti', 'heimdallr', 'dionysus', 'makunaima', 'ornyan', 'bo', 'olbo', 'thjlfi', 'peredur',
+                'mrimi', 'oluronbi', 'bamu', 'hioi', 'ptussorssuaq', 'yurokon', 'nat', 'nat fifth', 'dkw', 'kgssagssuk',
+                'isigligrssik', 'hou', 'hawepotiki', 'uenuku', 'prahlaad', 'harnaakhash', 'ouyan', 'yuckay', 'yuckay yuckay',
+                'comebo', 'cronos', 'ah', 'ah ah', 'ooboon', 'wh', 'whn', 'solomon', 'hunahp', 'mahthi', 'norns', 'hrr',
+                'nk', 'njps', 'shechem', 'hamor', 'magahar', 'benares', 'bhairao', 'gwaarayree', 'waaho', 'hindol',
+                'lord hindol', 've', 'nanda', 'sagha', 'tathgata', 'midgard', 'maxen', 'lamanites', 'zion', 'armf',
+                'orsha', 'odwa', 'odudwa', 'zoramites', 'jershon', 'gadianton', 'jarom', 'lamanites', 'ammoron', 'antipus',
+                'deepak', 'maalakausak', 'chaytee', 'lalo', 'gwydion', 'gronw', 'zion', 'umwathleni', 'zarahelma',
+                'peredur', 'luned', 'yma sumac', 'yma', 'hrr', 'danom', 'gabi', 'gomotan', 'ponaturi', 
+                'kgssagssuk', 'little kgssagssuk', 'takakopiri', 'dkw', 'oriyu', 'asalq', 'uktena', 
+                'uktena', 'maipuri', 'wawaiya', 'tuwhakararo', 'warraus', 'kaupe', 'pwyll', 'teirnyon',
+                'heveydd', 'gwawl', 'gwalchmai', 'geraint', 'dummerh', 'mooregoo', 'gwai', 'bilbers',
+                'hauraki', 'whatu', 'ngatoro', 'soulbride', 'kavi', 'harimandir', 'noid', 'astivihad',
+                'gazi', 'goolay', 'rhonabwy', 'armf', 'orsha', 'odudwa', 'odwa', 'gir', 'sita lachhman',
+                'hrr', 'har', 'mabon', 'llew', 'son modron', 'modron', 'mabon son', 'hrr', 'anurruddha',
+                'devats', 'aairs', 'aogemadaeca', 'kusinr', 'tathgata', 'baldr', 'svadilfari', 'sagha',
+                'sagha monks', 'ambapl', 'ongkaar', 'tathgata', 'bairaagan', 'gideon', 'har', 
+                'moronihah', 'zarahelma', 'sidon', 'king laman', 'amlicites',  'iaen', 'eri', 'greid', 'greid son',
+                'shule', 'son eri', 'corihor', 'kib', 'akish', 'mazdayasnians', 'thravan', 'athravan', 'myazda', 'zaotar',
+                'sherrizah', 'tet', 'middoni', 'benjamin', 'king benjamin', 'amulon', 'nemmes', 'xbalanqu', 'hunahp xbalanqu',
+                'hunahp', 'zerahemnah', 'ornyan', 'bo', 'olbo', 'simbukumbukwana', 'mbulu', 'skrnir', 'frigg',
+                'asalq', 'ffnir', 'qujvrssuk', 'geirrdr', 'grdr', 'erim', 'erim', 'twrch', 'gweir', 'boku',
+                 'boku boku', 'severn', 'grugyn', 'jtunheim', 'annwvyn', 'prince dyved', 'ynwyl', 'etlym',
+                 'kgssagssuk', 'little kgssagssuk', 'nahakoboni' 'qalagnguas', 'kardltuarssuk', 'ornyan',
+                 'bo', 'olbo', 'armf', 'orsha', 'odwa', 'odudwa', 'pasnush', 'hana', 'zaurura', 'usithlanu',
+                 'wadahans', 'manmukhs', 'yas', 'gthas', 'david', 'en', 'zipacn', 'toi', 'manawyddan',
+                 'sty', 'powys', 'mathonwy', 'hrr', 'aairs', 'kusinr', 'tathgata', 'raag bihaagraa',
+                 'bihaagraa', 'manmukh', 'aasaavaree', 'subhadda', 'nanda', 'ahurian', 'ganges', 'soohee',
+                 'soohee fifth', 'sagha', 'ndik', 'nanda', 'igbos', 'mrimi', 'oranyan', 'isaiah', 'laman',
+                 'knigseq', 'qalagnguas', 'isigligrssik', 'asalq', 'hatcinodo', 'ga na', 'ga', 'kgssagssuk',
+                 'little kgssagssuk', 'qujvrssuk', 'pakuanui', 'huhuti', 'weeoombeen', 'wauke', 'popohorokewa',
+                 'tamanoa', 'kaakau', 'llwyddeu', 'gwadyn', 'pehu', 'leho', 'gudrn', 'frdi', 'hgni', 'gjki',
+                 'makanauro', 'trwyth', 'llwydawg', 'kalma', 'chhant', 'orm', 'azi', 'xix', 'mainyu',
+                 'angra mainyu', 'angra', 'introd', 'yast', 'maalaa', 'maalaa fifth', 'kapo', 'kalihi',
+                 'rhun', 'kaydaaraa', 'gwenhwyvar', 'edeyrn', 'enid', 'cusi', 'umdabuko', 'rened', 'nanda',
+                 'tathgata', 'sagha', 'gwyddno', 'ishmael', 'gwenhwyvar', 'glewlwyd', 'ffnir', 'hermdr', 'hel',
+                 'abinadi', 'naglfar', 'hrr', 'sidom', 'musan', 'meamei', 'qujvrssuk', 'hoahanau', 'ipukai',
+                 'halemanu', 'saunikoq', 'zim', 'suttungr', 'ffnir', 'baugi', 'nongwes', 'magoda', 'dardurr',
+                 'willgoo', 'evnissyen',  'lono', 'ano', 'scr', 'ii', 'tangaroa', 'umahaule', 'unqanqaza',
+                 'matahorua', 'kuramarotini', 'amanthlwenga', 'umdhlebe', 'neruvkq', 'avvang', 'dyved',
+                 'imamba', 'guluwe', 'hili', 'nand', 'raavan', 'wh', 'dayoorl', 'wh wh', 'whn', 'tangalimlibo',
+                 'lehna', 'druj', 'cain', 'abel', 'armf', 'orsha', 'isigligrssik', 'qalagnguas', 'bilaawal',
+                 'ood', 'mukanday', 'jrmunrekkr', 'frdi', 'omer', 'jvaka', 'inuence', 'sebus', 'melchizedek',
+                 'aphrodite', 'anchises', 'konane', 'marabuntas', 'heiau', 'baddasan', 'celeus', 'cowee',
+                 'hinai', 'pisi', 'hatcinodo', 'sgard', 'skrmir', 'nanyobo', 'cantrev', 'blodeuwedd',
+                 'frdi', 'gwythyr', 'nudd', 'gwythyr son', 'angusinnguaq', 'dkw', 'vishtaspa', 'king vishtaspa',
+                 'nabnazdistas', 'amrit', 'sita lachhman', 'lahore', 'lachhman', 'raag gujri', 'raag',
+                 'yasht', 'drvaspa', 'kavis', 'undhlebekazizwa', 'umazwana', 'amakuza', 'ifr', 'uggason','ifr uggason',
+                 'cabracn', 'madawc', 'tegid', 'bach', 'gwion bach', 'iorwerth', 'hunbatz', 'hunchoun', 'hunbatz hunchoun',
+                 'mrimi', 'bo', 'hrlfr', 'edom', 'gujri fifth', 'gujri', 'kevaa', 'trilochan', 'veda', 'dakhmas',
+                 'vi', 'tishtrya', 'goolahgool', 'angusinnguaq', 'kapa', 'wh', 'whn', 'bindeah', 'uhu',
+                 'kauahoa', 'keaau', 'hauula', 'tarbaran', 'grdr', 'frdi', 'geirrdr', 'dungle', 'hrr',
+                 'skrmir', 'knigseq', 'forth spitama', 'spitama', 'jahi', 'sannyaasi', 'blverkr', 'tr',
+                 'hrr', 'mrimi', 'bo', 'ifes', 'apakura', 'rongotakawiu', 'dinah', 'quich', 'dhadha',
+                 'devats', 'kusinr', 'jaijaavantee', 'jaijaavantee ninth', 'rened', 'jvaka', 'ajtasattu', 
+                 'samiri', 'nahakoboni', 'waiamari', 'skdbladnir', 'ayo', 'maalee', 'gauraa', 'maalee gauraa',
+                 'gauraa fifth', 'mithra', 'bhagaautee', 'vaishnaav', 'kalyaan', 'poorbee fourth',
+                 'tamub', 'menw', 'ermid', 'shu', 'gunas', 'eing', 'gotama', 'sushmanaa', 'ambapl',
+                 'nanda', 'cundal', 'vinaya', 'dakhanay fifth', 'lord dakhanay', 'dakhanay', 'maru', 'cumorah',
+                 'helam', 'jvaka', 'ajtasattu', 'vassakra', 'amlici', 'aurvandill', 'arnrr', 'eilfr', 'zarahelma',
+                 'erbin', 'rangitihi', 'tupenu', 'nuknguasik', 'hatcinodo', 'ch', 'hrlfr', 'kraki',
+                 'hrlfr kraki', 'adils', 'gudrn', 'tane', 'zakariya', 'hgni', 'hedinn', 'nkws', 'phoebus',
+                 'idzumo', 'brahm', 'benet', 'udaasee', 'nabnazdistas', 'seq seq', 'istrs', 'innite',
+                 'yspaddaden penkawr', 'penkawr', 'yspaddaden', 'gwrnach']
+analyzer = ReligiousTextThemeAnalyzer(custom_stopwords=custom_stops)
 
 # Load data
 df = pd.read_csv('Dataset_with_Text.csv', encoding='utf-8')
