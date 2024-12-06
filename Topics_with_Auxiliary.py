@@ -74,7 +74,8 @@ class ReligiousTextThemeAnalyzer:
                 min_topic_size=2,
                 nr_topics="auto",
                 verbose=True,
-                calculate_probabilities=True
+                calculate_probabilities=True,
+                top_n_words=20
             )
             
             # Fit the model to this text's chunks
@@ -208,7 +209,7 @@ class TopicSimilarityAnalyzer:
         
         return topic_embeddings
     
-    def compute_topic_similarities(self, similarity_threshold=0.7):
+    def compute_topic_similarities(self, similarity_threshold=0.85):
         """
         Compute and group similar topics across texts
         
@@ -534,7 +535,42 @@ custom_stops = ['arjuna', 'krishna', 'mazda', 'ahura mazda', 'brahma', 'dhammas'
                  'erbin', 'rangitihi', 'tupenu', 'nuknguasik', 'hatcinodo', 'ch', 'hrlfr', 'kraki',
                  'hrlfr kraki', 'adils', 'gudrn', 'tane', 'zakariya', 'hgni', 'hedinn', 'nkws', 'phoebus',
                  'idzumo', 'brahm', 'benet', 'udaasee', 'nabnazdistas', 'seq seq', 'istrs', 'innite',
-                 'yspaddaden penkawr', 'penkawr', 'yspaddaden', 'gwrnach']
+                 'yspaddaden penkawr', 'penkawr', 'yspaddaden', 'gwrnach', 'potoru', 'tuau', 'goug', 'gour gah', 'gour gour',
+                 'gah gah', 'tahiti', 'ngahue', 'hawaiki', 'tainui', 'ihuatamai', 'hinauri' 'ihuwareware', 'yackman', 'whakaturia',
+                 'amanna', 'artuk', 'ptussorssuaq', 'altaq', 'gwion', 'mawri', 'birnie', 'ullr', 'sark', 'rdi', 'hildr', 'hlkk',
+                 'hildr', 'hgni', 'kvasir', 'skald', 'ifr', 'eyvindr', 'thrvaldi', 'hrr', 'whn', 'kalaniopuu', 'mayrah',
+                 'idhlozi', 'wa', 'asalq', 'ngngjuk', 'nuknguasik', 'qalagnguas', 'isigligrssik', 'felin', 'punihuia', 'kushi',
+                 'armorica', 'gillingr', 'blverkr', 'geirrdr', 'fedilizan', 'kilauea', 'seq', 'istrs', 'nabnazdistas',
+                 'anquetil', 'saawan', 'irth', 'krishnas', 'vishtasp', 'visperad', 'vohu', 'rashnu', 'verethraghna'
+                 'ersonified', 'ndying', 'ndying eyond', 'atred', 'eyond', 'reative', 'samaadhi', 'govind', 'haray', 'lord haray',
+                 'haray haray', 'aweoweo', 'frdi', 'kuiwai', 'drengs', 'haraldr', 'cotuh', 'ahpop', 'nihaib', 'eepa', 'kearoa',
+                 'mahina', 'waolani', 'kahiki', 'llyr', 'caradawc', 'harlech', 'kynan', 'reuel', 'chedorlaomer',
+                 'dishon', 'basemath', 'oholibamah', 'zibeon', 'anah', 'eliphaz', 'eos', 'gandhaaree', 'raaginis', 'hagar',
+                 'hera', 'orsha', 'brahm', 'great brahm', 'maghar', 'katak', 'phalgun', 'saawan', 'bhaadon', 'assu', 'maagh',
+                 'ambapl', 'pv', 'cunda', 'vesl', 'arezra', 'brahmans', 'nite', 'innite', 'nite innite', 'augustness',
+                 'salla', 'pitu', 'pitu salla', 'kusinr', 'nanda', 'lamech', 'nahor', 'teancum', 'haran', 'terah', 'seth',
+                 'rangi', 'rangi papa', 'ahr', 'zarahelma', 'ynywl', 'azhi', 'dava', 'daeva', 'thravan', 'saddar hyde', 'saddar',
+                 'ephraim', 'bethuel', 'lehi', 'baresma', 'utshaka', 'goolays', 'usenzangakona', 'uyegana', 'uxele', 'unsikana',
+                 'ulangeni', 'umpengula', 'mbanda', 'umpengula mbanda', 'uthlomo', 'ammaron', 'senum', 'kamoiliili', 'arnrr',
+                 'eilfr', 'boki', 'fridleifr', 'amalickiah', 'teancum', 'lehi', 'pershephone', 'sanjaya', 'drona', 'bhishma',
+                 'skrmir', 'ukanzi', 'sgard', 'goore', 'goore goore', 'mirrieh', 'saxland', 'eudav', 'gathas', 'gir',
+                 'polack', 'gomez', 'vanir', 'vaar', 'gursikhs', 'gorakh', 'puraanas', 'qazi', 'blerwm', 'yamato',
+                 'naad', 'bragr', 'hrr', 'valhall', 'urdr', 'vlusp', 'dathyl', 'caer dathyl', 'custennin', 'hilu',
+                 'bela', 'saul', 'cyllenian', 'makte', 'bedwyr', 'sarai', 'vag', 'airyana', 'airyana vag', 'frangrasyan',
+                 'aryan', 'aredvi', 'airyaman', 'saoka', 'pali', 'ajtasattu', 'ajtasattu vedhiputta', 'vedehiputta',
+                 'sunidha', 'sunidha vassakra', 'vassakra', 'aad', 'aad mam', 'mam tanvo', 'mam', 'ithyejanguhaiti',
+                 'gtha', 'tanvo ithyejanguhaiti', 'tanvo', 'kusinr', 'mah kassapa', 'lakshmi', 'king ajtasattu',
+                 'ajtasattu', 'nigaha', 'pendaran', 'dava', 'ashi', 'ashi vanguhi', 'vanguhi', 'dakhma', 'bheekhan', 'dwaarikaa',
+                 'teomner', 'manti', 'lehonti', 'emer', 'thjlfi', 'grjtnagard', 'zemnarihah', 'mulek', 'geirrdr', 'arianrod',
+                 'mspell', 'hestia', 'gatha', 'kinvad', 'gtha', 'karshvares', 'strabo', 'venddd', 'verethraghna', 'verethraghna verethraghna',
+                 'mohinis', 'kahilona', 'gilvaethwy', 'gwynedd', 'gilvaethwy son', 'sijjin', 'kilitraq', 'hiiakas', 'leurs', 'gmz',
+                 'comm', 'ne', 'draona', 'gahi', 'gucumatz', 'synjur', 'beli', 'hermdr', 'hunchoun', 'isiwandiye', 'hina',
+                 'ndik', 'ew', 'aairs', 'pairika', 'keresspa', 'vedic', 'dahka', 'vedas', 'aminadab', 'mazdeism', 'king ajtasattu',
+                 'kassapa', 'shiblom', 'yggdrasill', 'hrr', 'vlusp', 'bifrst', 'wh', 'whn', 'wh wh', 'wondah', 'amos',
+                 'senine', 'ormazd', 'pitris', 'haurvatt amerett', 'baisakhi', 'hud', 'qibla', 'kaashi', 'grani', 'niflungs',
+                 'hgni', 'fri', 'hjadnings', 'hrlfr', 'gjki', 'camlan', 'echel', 'son saidi', 'saidi', 'gwallt', 'refr', 'sif',
+                 'blverkr', 'kamehameha', 'waikiki', 'waipio', 'ammonihah', 'melek', 'shiblon', 'sigyn', 'frbauti', 'jtunheim',
+                 'thravan', 'havgan', 'arawn', 'kumaso', 'dhritirashtra', 'saadhus', 'vedas']
 analyzer = ReligiousTextThemeAnalyzer(custom_stopwords=custom_stops)
 
 # Load data
@@ -546,7 +582,7 @@ results = analyzer.analyze_corpus(df)
 #%%
 # Perform topic similarity analysis
 similarity_analyzer = TopicSimilarityAnalyzer(results, df)
-topic_groups = similarity_analyzer.compute_topic_similarities(similarity_threshold=0.9)
+topic_groups = similarity_analyzer.compute_topic_similarities(similarity_threshold=0.75)
 similarity_analyzer.print_topic_groups(topic_groups)
 
 # %%
